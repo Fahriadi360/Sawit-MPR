@@ -1,7 +1,7 @@
 /**
  * =========================================================================
  * MODUL PETA GIS INTERAKTIF & CITRA OFFLINE (ECW / RASTER / ORTHOPHOTO)
- * map.js - PT. ENERGI MAJU JAYA
+ * map.js - PT. MULA PERSADA RAYA
  * Dukungan Proyeksi WGS_1984_UTM_Zone_50S, Minimizable Controls, & Auto-fit
  * =========================================================================
  */
@@ -32,7 +32,7 @@ let walkTrackingTimer = null;
 let walkTrackingSeconds = 0;
 let tempPlottedPolygonGeoJSON = null;
 
-// Bounding box perkebunan PT. EMJ (WGS84 Lat/Lng)
+// Bounding box perkebunan PT. MPR (WGS84 Lat/Lng)
 let KEBUN_BOUNDS = [
     [-1.115, 102.150], // Southwest [Lat, Lng]
     [-1.100, 102.165]  // Northeast [Lat, Lng]
@@ -216,7 +216,7 @@ function initOfflineCitraLayer() {
     offlineCitraLayer = L.imageOverlay(offlineImgUrl, citraBounds, {
         opacity: 0.85,
         interactive: false,
-        attribution: 'Citra Offline Orthophoto PT. EMJ'
+        attribution: 'Citra Offline Orthophoto PT. MPR'
     });
 }
 
@@ -283,14 +283,14 @@ function createUploadOrthophotoModal() {
                         <i class="fas fa-earth-asia text-emerald mr-1"></i> Sistem Proyeksi Citra (Projection):
                     </label>
                     <select id="selectCitraProjection" class="form-control-clean">
-                        <option value="EPSG:32750" selected>WGS_1984_UTM_Zone_50S (EPSG: 32750 - Standar PT. EMJ / Kaltim / Kalsel)</option>
+                        <option value="EPSG:32750" selected>WGS_1984_UTM_Zone_50S (EPSG: 32750 - Standar PT. MPR / Kaltim / Kalsel)</option>
                         <option value="EPSG:32749">WGS_1984_UTM_Zone_49S (EPSG: 32749 - Kalteng / Kalbar)</option>
                         <option value="EPSG:32748">WGS_1984_UTM_Zone_48S (EPSG: 32748 - Sumsel / Lampung / Jambi)</option>
                         <option value="EPSG:32648">WGS_1984_UTM_Zone_48N (EPSG: 32648 - Riau / Sumbar)</option>
                         <option value="EPSG:4326">WGS_1984_Geographic (EPSG: 4326 - Derajat Desimal)</option>
                     </select>
                     <div class="mt-2 text-xs text-muted" style="line-height: 1.5;">
-                        <i class="fas fa-circle-check text-emerald mr-1"></i> <b>Penataan Otomatis:</b> Koordinat batas cakupan dihitung dan diselaraskan secara otomatis dengan zona proyeksi UTM perkebunan PT. EMJ tanpa perlu input manual.
+                        <i class="fas fa-circle-check text-emerald mr-1"></i> <b>Penataan Otomatis:</b> Koordinat batas cakupan dihitung dan diselaraskan secara otomatis dengan zona proyeksi UTM perkebunan PT. MPR tanpa perlu input manual.
                     </div>
                 </div>
             </div>
@@ -334,7 +334,7 @@ function applyUserOrthophoto() {
 
     const selectedProj = document.getElementById('selectCitraProjection')?.value || 'EPSG:32750';
 
-    // Bounding box default perkebunan PT. EMJ
+    // Bounding box default perkebunan PT. MPR
     const bounds = [
         [-1.115, 102.150],
         [-1.100, 102.165]
