@@ -1,6 +1,6 @@
 /**
  * =========================================================================
- * CORE LOGIC & APLIKASI WEB-GIS ENTERPRISE - PT. ENERGI MAJU JAYA
+ * CORE LOGIC & APLIKASI WEB-GIS ENTERPRISE - PT. MULA PERSADA RAYA
  * app.js - Branding Customizer, Theme Switcher, Responsive Nav, & Core Logic
  * =========================================================================
  */
@@ -8,7 +8,7 @@
 const GAS_URL = 'YOUR_GAS_WEB_APP_URL_HERE';
 const IS_DEMO = GAS_URL === 'YOUR_GAS_WEB_APP_URL_HERE';
 
-// DATA MASTER BLOK PT. EMJ (DISIMPAN DI MEMORY / LOCALSTORAGE)
+// DATA MASTER BLOK PT. MPR (DISIMPAN DI MEMORY / LOCALSTORAGE)
 let DEFAULT_BLOCKS = [
     {
         id_blok: 'OPD A',
@@ -96,7 +96,7 @@ let DEFAULT_BLOCKS = [
     }
 ];
 
-// DATA LAPORAN OTENTIK DARI EXCEL PT. EMJ
+// DATA LAPORAN OTENTIK DARI EXCEL PT. MPR
 let DEFAULT_REPORTS = [
     {
         id_laporan: 'LPR-20260902-001',
@@ -1346,8 +1346,8 @@ function saveCompanySettingsFromUI() {
     }
 
     const settings = {
-        company_name: document.getElementById('setCompanyName')?.value || 'PT. ENERGI MAJU JAYA',
-        company_abbr: document.getElementById('setCompanyAbbr')?.value || 'PT. EMJ',
+        company_name: document.getElementById('setCompanyName')?.value || 'PT. MULA PERSADA RAYA',
+        company_abbr: document.getElementById('setCompanyAbbr')?.value || 'PT. MPR',
         estate_name: document.getElementById('setEstateName')?.value || 'Estate Sei Semujur',
         standard_sph: document.getElementById('setStandardSph')?.value || '138',
         address: document.getElementById('setCompanyAddress')?.value || '',
@@ -1358,7 +1358,7 @@ function saveCompanySettingsFromUI() {
     };
 
     localStorage.setItem('sawit_company_settings', JSON.stringify(settings));
-    showToast('Pengaturan identitas perusahaan PT. EMJ berhasil disimpan!', 'success');
+    showToast('Pengaturan identitas perusahaan PT. MPR berhasil disimpan!', 'success');
 }
 
 function formatDateShort(dateStr) {
