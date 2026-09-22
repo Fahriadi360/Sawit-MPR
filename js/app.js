@@ -5,8 +5,8 @@
  * =========================================================================
  */
 
-const GAS_URL = 'YOUR_GAS_WEB_APP_URL_HERE';
-const IS_DEMO = GAS_URL === 'YOUR_GAS_WEB_APP_URL_HERE';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwGUnqC7U_57T2UgHytpsXbXZWJTRd9jRwZFeVSAD8iviE89Uz_puty-zPsEcOrDFo/exec';
+const IS_DEMO = GAS_URL === 'https://script.google.com/macros/s/AKfycbwGUnqC7U_57T2UgHytpsXbXZWJTRd9jRwZFeVSAD8iviE89Uz_puty-zPsEcOrDFo/exec';
 
 // DATA MASTER BLOK PT. EMJ (DISIMPAN DI MEMORY / LOCALSTORAGE)
 let DEFAULT_BLOCKS = [
