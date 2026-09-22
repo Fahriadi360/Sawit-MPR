@@ -13,7 +13,7 @@ let DEFAULT_BLOCKS = [
     {
         id_blok: 'OPD A',
         afdeling: 'Afdeling 1',
-        estate: 'Estate Sei Semujur',
+        estate: 'Estate Sei Miak',
         luas_ha: 6.68,
         pola_tanam: 'Mata Lima',
         jarak_tanam: '9x9',
@@ -34,7 +34,7 @@ let DEFAULT_BLOCKS = [
     {
         id_blok: 'OPD C',
         afdeling: 'Afdeling 1',
-        estate: 'Estate Sei Semujur',
+        estate: 'Estate Sei Miak',
         luas_ha: 6.66,
         pola_tanam: 'Mata Lima',
         jarak_tanam: '9x9',
@@ -55,7 +55,7 @@ let DEFAULT_BLOCKS = [
     {
         id_blok: 'OPD B',
         afdeling: 'Afdeling 1',
-        estate: 'Estate Sei Semujur',
+        estate: 'Estate Sei Miak',
         luas_ha: 6.70,
         pola_tanam: 'Mata Lima',
         jarak_tanam: '9x9',
@@ -76,7 +76,7 @@ let DEFAULT_BLOCKS = [
     {
         id_blok: 'OPD D',
         afdeling: 'Afdeling 1',
-        estate: 'Estate Sei Semujur',
+        estate: 'Estate Sei Miak',
         luas_ha: 6.65,
         pola_tanam: 'Mata Lima',
         jarak_tanam: '9x9',
@@ -800,7 +800,7 @@ function saveBlok(e) {
         appData.blocks.push({
             id_blok: idBlok,
             afdeling,
-            estate: 'Estate Sei Semujur',
+            estate: 'Estate Sei Miak',
             luas_ha: luas,
             pola_tanam: pola,
             jarak_tanam: jarak,
@@ -1348,7 +1348,7 @@ function saveCompanySettingsFromUI() {
     const settings = {
         company_name: document.getElementById('setCompanyName')?.value || 'PT. MULA PERSADA RAYA',
         company_abbr: document.getElementById('setCompanyAbbr')?.value || 'PT. MPR',
-        estate_name: document.getElementById('setEstateName')?.value || 'Estate Sei Semujur',
+        estate_name: document.getElementById('setEstateName')?.value || 'Estate Sei Miak',
         standard_sph: document.getElementById('setStandardSph')?.value || '138',
         address: document.getElementById('setCompanyAddress')?.value || '',
         contact: document.getElementById('setCompanyContact')?.value || '',
