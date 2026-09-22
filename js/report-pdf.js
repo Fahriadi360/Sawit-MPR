@@ -1,7 +1,7 @@
 /**
  * =========================================================================
  * MODUL EKSPOR LAPORAN PDF LANDSCAPE RESMI & TTD ONLINE
- * report-pdf.js - PT. MULA PERSADA RAYA
+ * report-pdf.js - PT. ENERGI MAJU JAYA
  * =========================================================================
  */
 
@@ -30,7 +30,7 @@ function openReportPeriodModal() {
     const endInput = document.getElementById('pdfEndDate');
     
     if (startInput && endInput) {
-        startInput.value = '2026-08-01'; // Sesuai periode data PT. MPR
+        startInput.value = '2026-08-01'; // Sesuai periode data PT. EMJ
         endInput.value = '2026-09-30';
     }
     
@@ -116,7 +116,7 @@ function createReportPeriodModal() {
                     <div class="checkbox-grid">
                         <label class="checkbox-item">
                             <input type="checkbox" id="pdfIncTable" checked>
-                            <span>Tabel Rincian Kegiatan (Standar PT. MPR)</span>
+                            <span>Tabel Rincian Kegiatan (Standar PT. EMJ)</span>
                         </label>
                         <label class="checkbox-item">
                             <input type="checkbox" id="pdfIncMap" checked>
@@ -479,7 +479,7 @@ function buildReportTemplate(filteredReports) {
                 <div style="margin-top: 15px; page-break-inside: avoid;">
                     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid #0f2942; padding-bottom: 3px; margin-bottom: 8px;">
                         <span style="font-weight: bold; font-size: 9.5pt; color: #0f2942;">LAMPIRAN DOKUMENTASI FOTO LAPANGAN (${allPhotoItems.length} Foto Tersedia)</span>
-                        <span style="font-size: 7.5pt; color: #64748b;">Standar Audit & Verifikasi Lapangan PT. MPR</span>
+                        <span style="font-size: 7.5pt; color: #64748b;">Standar Audit & Verifikasi Lapangan PT. EMJ</span>
                     </div>
                     <div style="display: flex; flex-wrap: wrap; gap: 8px;">
                         ${photoCards}
@@ -600,10 +600,13 @@ function buildReportTemplate(filteredReports) {
         <!-- KOP SURAT PERUSAHAAN -->
         <div class="kop-container">
             <div class="kop-logo-box">
-                <i class="fas fa-tree text-emerald" style="font-size: 32pt;"></i>
+                ${(company.logo_url || localStorage.getItem('sawit_app_logo')) 
+                    ? `<img src="${company.logo_url || localStorage.getItem('sawit_app_logo')}" style="max-height: 52px; max-width: 140px; object-fit: contain;">`
+                    : `<i class="fas fa-tree text-emerald" style="font-size: 32pt;"></i>`
+                }
             </div>
             <div class="kop-info-box">
-                <h2 class="kop-title">${company.company_name || 'PT. MULA PERSADA RAYA'}</h2>
+                <h2 class="kop-title">${company.company_name || 'PT. ENERGI MAJU JAYA'}</h2>
                 <div class="kop-sub">${company.estate_name || 'Estate Sei Semujur'} | Unit Penanaman Kelapa Sawit</div>
                 <div class="kop-address">${company.address || 'Jl. Poros Perkebunan Kelapa Sawit Km 18, Kalimantan Barat'} | ${company.contact || 'Telp/Email: info@pt-emj.co.id'}</div>
             </div>
@@ -648,7 +651,7 @@ function buildReportTemplate(filteredReports) {
         <!-- PETA PROGRES SPASIAL -->
         ${mapSection}
 
-        <!-- TABEL RINCIAN KEGIATAN SESUAI EXCEL PT. MPR -->
+        <!-- TABEL RINCIAN KEGIATAN SESUAI EXCEL PT. EMJ -->
         ${incTable ? `
         <div style="margin-top: 14px;">
             <table class="report-table-clean">
@@ -770,19 +773,26 @@ function formatDateIndo(dateStr) {
 }
 
 function getCompanySettings() {
+    const logo = localStorage.getItem('sawit_app_logo') || '';
     const stored = localStorage.getItem('sawit_company_settings');
     if (stored) {
-        try { return JSON.parse(stored); } catch (e) {}
+        try {
+            const parsed = JSON.parse(stored);
+            if (!parsed.logo_url && logo) parsed.logo_url = logo;
+            return parsed;
+        } catch (e) {}
     }
     return {
-        company_name: 'PT. MULA PERSADA RAYA',
-        company_abbr: 'PT. MPR',
+        company_name: 'PT. ENERGI MAJU JAYA',
+        company_abbr: 'PT. EMJ',
         estate_name: 'Estate Sei Semujur',
         standard_sph: '138',
         address: 'Jl. Poros Perkebunan Kelapa Sawit Km 18, Kalimantan Barat',
         contact: 'info@pt-emj.co.id | Telp: (0561) 789012',
         sign_mandor: 'Joko Susanto',
         sign_asisten: 'Ir. Bambang Wijaya',
-        sign_manager: 'Drs. Hendrawan, M.Si.'
+        sign_manager: 'Drs. Hendrawan, M.Si.',
+        logo_url: logo
     };
 }
+window.getCompanySettings = getCompanySettings;

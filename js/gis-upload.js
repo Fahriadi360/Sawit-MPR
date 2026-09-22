@@ -26,6 +26,8 @@ function initProj4Defs() {
     }
 }
 
+const SPATIAL_LAYERS_STORAGE_KEY = 'sawit_registered_spatial_layers';
+
 // Simpan layer spasial kustom lokal
 let localCustomLayers = [
     {
@@ -33,9 +35,43 @@ let localCustomLayers = [
         tipe_file: 'GeoJSON (UTM 50S)',
         uploaded_at: '22 Sep 2026',
         is_system: true,
-        visible: true
+        visible: true,
+        kategori: 'Batas Blok Kebun (Master)',
+        color: '#10b981'
     }
 ];
+
+function loadSpatialLayersFromStorage() {
+    const raw = localStorage.getItem(SPATIAL_LAYERS_STORAGE_KEY);
+    if (raw) {
+        try {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                localCustomLayers = parsed;
+            }
+        } catch (e) {
+            console.warn('Error loading custom spatial layers:', e);
+        }
+    }
+}
+
+function saveSpatialLayersToStorage() {
+    try {
+        const toSave = localCustomLayers.map(l => ({
+            nama_layer: l.nama_layer,
+            tipe_file: l.tipe_file,
+            uploaded_at: l.uploaded_at,
+            is_system: l.is_system || false,
+            visible: l.visible !== false,
+            kategori: l.kategori || (l.is_system ? 'Batas Blok Kebun (Master)' : 'Layer Tambahan'),
+            color: l.color || '#10b981',
+            geojson: l.geojson || null
+        }));
+        localStorage.setItem(SPATIAL_LAYERS_STORAGE_KEY, JSON.stringify(toSave));
+    } catch (e) {
+        console.warn('Failed saving spatial layers to storage:', e);
+    }
+}
 
 function initUploadZone() {
     if (isUploadInitialized) return;
@@ -91,6 +127,7 @@ function initUploadZone() {
         btnUpload.addEventListener('click', processUpload);
     }
 
+    loadSpatialLayersFromStorage();
     renderCustomLayersTable();
     isUploadInitialized = true;
 }
@@ -353,6 +390,7 @@ async function processUpload() {
             if (typeof showToast === 'function') showToast(`Layer "${layerName}" berhasil ditambahkan ke peta!`, 'success');
         }
 
+        saveSpatialLayersToStorage();
         renderCustomLayersTable();
         resetUploadState();
 
@@ -389,10 +427,18 @@ function renderCustomLayersTable() {
 
     tbody.innerHTML = '';
     localCustomLayers.forEach((layer, idx) => {
-        const isSys = layer.is_system;
         const tr = document.createElement('tr');
+        const color = layer.color || '#10b981';
         tr.innerHTML = `
-            <td style="font-weight: 600; color: #f1f5f9;">${layer.nama_layer}</td>
+            <td>
+                <div style="font-weight: 600; color: #f1f5f9; display: flex; align-items: center; gap: 8px;">
+                    <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: ${color}; box-shadow: 0 0 6px ${color};"></span>
+                    <span>${layer.nama_layer}</span>
+                </div>
+                <small class="text-muted" style="font-size: 10.5px; display: block; margin-top: 2px;">
+                    ${layer.kategori || (layer.is_system ? 'Batas Blok Kebun (Master)' : 'Layer Spasial Tambahan')}
+                </small>
+            </td>
             <td><span class="badge badge-format">${layer.tipe_file}</span></td>
             <td>${layer.uploaded_at}</td>
             <td>
@@ -402,21 +448,93 @@ function renderCustomLayersTable() {
                 </label>
             </td>
             <td class="action-btn-group">
-                ${isSys 
-                    ? `<span class="text-xs text-muted">Master Sistem</span>`
-                    : `
-                    <button type="button" class="btn-action-update" onclick="triggerUpdateLayer(${idx})" title="Perbarui / Ganti File Spasial">
-                        <i class="fas fa-rotate"></i> Perbarui
-                    </button>
-                    <button type="button" class="btn-action-delete" onclick="deleteCustomLayer(${idx})" title="Hapus Layer">
-                        <i class="fas fa-trash"></i> Hapus
-                    </button>
-                    `
-                }
+                <button type="button" class="btn-action-edit" onclick="openEditSpatialLayerModal(${idx})" title="Edit Detail & Tampilan Layer">
+                    <i class="fas fa-pen-to-square mr-1"></i> Edit
+                </button>
+                <button type="button" class="btn-action-delete" onclick="deleteCustomLayer(${idx})" title="Hapus Layer Spasial">
+                    <i class="fas fa-trash mr-1"></i> Hapus
+                </button>
             </td>
         `;
         tbody.appendChild(tr);
     });
+}
+
+let editingSpatialLayerIndex = null;
+
+function openEditSpatialLayerModal(idx) {
+    editingSpatialLayerIndex = idx;
+    const layer = localCustomLayers[idx];
+    if (!layer) return;
+
+    const modal = document.getElementById('editSpatialLayerModal');
+    if (!modal) return;
+
+    const nameInp = document.getElementById('editSpatialLayerName');
+    const catInp = document.getElementById('editSpatialLayerCategory');
+    const colorInp = document.getElementById('editSpatialLayerColor');
+    const formatInp = document.getElementById('editSpatialLayerFormat');
+    const visInp = document.getElementById('editSpatialLayerVisible');
+
+    if (nameInp) nameInp.value = layer.nama_layer || '';
+    if (catInp) catInp.value = layer.kategori || (layer.is_system ? 'Batas Blok Kebun' : 'Layer Tambahan Lainnya');
+    if (colorInp) colorInp.value = layer.color || '#10b981';
+    if (formatInp) formatInp.value = `${layer.tipe_file} (Diunggah: ${layer.uploaded_at})`;
+    if (visInp) visInp.checked = layer.visible !== false;
+
+    modal.classList.add('show');
+}
+
+function closeEditSpatialLayerModal() {
+    const modal = document.getElementById('editSpatialLayerModal');
+    if (modal) modal.classList.remove('show');
+    editingSpatialLayerIndex = null;
+}
+
+function saveEditSpatialLayerSubmit(e) {
+    if (e) e.preventDefault();
+    if (editingSpatialLayerIndex === null) return;
+
+    const layer = localCustomLayers[editingSpatialLayerIndex];
+    if (!layer) return;
+
+    const newName = document.getElementById('editSpatialLayerName')?.value.trim();
+    const newCategory = document.getElementById('editSpatialLayerCategory')?.value;
+    const newColor = document.getElementById('editSpatialLayerColor')?.value;
+    const newVisible = document.getElementById('editSpatialLayerVisible')?.checked ?? true;
+
+    if (!newName) {
+        if (typeof showToast === 'function') showToast('Nama layer wajib diisi!', 'warning');
+        return;
+    }
+
+    layer.nama_layer = newName;
+    layer.kategori = newCategory;
+    layer.color = newColor;
+    layer.visible = newVisible;
+
+    // Update style warna leafletLayer jika poligon vektor
+    if (layer.leafletLayer && typeof layer.leafletLayer.setStyle === 'function') {
+        layer.leafletLayer.setStyle({ color: newColor, fillColor: newColor });
+    }
+
+    // Perbarui status visibilitas
+    toggleCustomLayerVisibility(editingSpatialLayerIndex, newVisible, false);
+
+    saveSpatialLayersToStorage();
+    renderCustomLayersTable();
+    closeEditSpatialLayerModal();
+
+    if (typeof showToast === 'function') {
+        showToast(`Layer "${layer.nama_layer}" berhasil diperbarui!`, 'success');
+    }
+}
+
+function triggerReplaceFileFromEdit() {
+    if (editingSpatialLayerIndex === null) return;
+    const idx = editingSpatialLayerIndex;
+    closeEditSpatialLayerModal();
+    triggerUpdateLayer(idx);
 }
 
 function triggerUpdateLayer(idx) {
@@ -426,7 +544,7 @@ function triggerUpdateLayer(idx) {
     if (nameInp) nameInp.value = layer.nama_layer;
 
     if (typeof showToast === 'function') {
-        showToast(`Silakan pilih berkas baru untuk memperbarui layer "${layer.nama_layer}"`, 'warning');
+        showToast(`Silakan pilih berkas spasial baru untuk memperbarui layer "${layer.nama_layer}"`, 'warning');
     }
 
     const fileInput = document.getElementById('fileUploadGis');
@@ -435,15 +553,22 @@ function triggerUpdateLayer(idx) {
 
 function deleteCustomLayer(idx) {
     const layer = localCustomLayers[idx];
-    if (!layer || layer.is_system) return;
+    if (!layer) return;
 
-    if (!confirm(`Apakah Anda yakin ingin menghapus layer "${layer.nama_layer}" dari peta dan sistem?`)) return;
+    const msg = layer.is_system 
+        ? `Apakah Anda yakin ingin menghapus layer master "${layer.nama_layer}" dari tampilan?` 
+        : `Apakah Anda yakin ingin menghapus layer "${layer.nama_layer}" dari peta dan sistem?`;
 
-    if (layer.leafletLayer && typeof map !== 'undefined' && map) {
+    if (!confirm(msg)) return;
+
+    if (layer.is_system && typeof blokLayerGroup !== 'undefined' && map) {
+        map.removeLayer(blokLayerGroup);
+    } else if (layer.leafletLayer && typeof map !== 'undefined' && map) {
         map.removeLayer(layer.leafletLayer);
     }
 
     localCustomLayers.splice(idx, 1);
+    saveSpatialLayersToStorage();
     renderCustomLayersTable();
     if (typeof showToast === 'function') showToast(`Layer "${layer.nama_layer}" telah dihapus.`, 'success');
 }

@@ -1,6 +1,6 @@
 /**
  * =========================================================================
- * CORE LOGIC & APLIKASI WEB-GIS ENTERPRISE - PT. MULA PERSADA RAYA
+ * CORE LOGIC & APLIKASI WEB-GIS ENTERPRISE - PT. ENERGI MAJU JAYA
  * app.js - Branding Customizer, Theme Switcher, Responsive Nav, & Core Logic
  * =========================================================================
  */
@@ -8,12 +8,12 @@
 const GAS_URL = 'YOUR_GAS_WEB_APP_URL_HERE';
 const IS_DEMO = GAS_URL === 'YOUR_GAS_WEB_APP_URL_HERE';
 
-// DATA MASTER BLOK PT. MPR (DISIMPAN DI MEMORY / LOCALSTORAGE)
+// DATA MASTER BLOK PT. EMJ (DISIMPAN DI MEMORY / LOCALSTORAGE)
 let DEFAULT_BLOCKS = [
     {
         id_blok: 'OPD A',
         afdeling: 'Afdeling 1',
-        estate: 'Estate Sei Miak',
+        estate: 'Estate Sei Semujur',
         luas_ha: 6.68,
         pola_tanam: 'Mata Lima',
         jarak_tanam: '9x9',
@@ -34,7 +34,7 @@ let DEFAULT_BLOCKS = [
     {
         id_blok: 'OPD C',
         afdeling: 'Afdeling 1',
-        estate: 'Estate Sei Miak',
+        estate: 'Estate Sei Semujur',
         luas_ha: 6.66,
         pola_tanam: 'Mata Lima',
         jarak_tanam: '9x9',
@@ -55,7 +55,7 @@ let DEFAULT_BLOCKS = [
     {
         id_blok: 'OPD B',
         afdeling: 'Afdeling 1',
-        estate: 'Estate Sei Miak',
+        estate: 'Estate Sei Semujur',
         luas_ha: 6.70,
         pola_tanam: 'Mata Lima',
         jarak_tanam: '9x9',
@@ -76,7 +76,7 @@ let DEFAULT_BLOCKS = [
     {
         id_blok: 'OPD D',
         afdeling: 'Afdeling 1',
-        estate: 'Estate Sei Miak',
+        estate: 'Estate Sei Semujur',
         luas_ha: 6.65,
         pola_tanam: 'Mata Lima',
         jarak_tanam: '9x9',
@@ -96,7 +96,7 @@ let DEFAULT_BLOCKS = [
     }
 ];
 
-// DATA LAPORAN OTENTIK DARI EXCEL PT. MPR
+// DATA LAPORAN OTENTIK DARI EXCEL PT. EMJ
 let DEFAULT_REPORTS = [
     {
         id_laporan: 'LPR-20260902-001',
@@ -111,8 +111,8 @@ let DEFAULT_REPORTS = [
         todate: 1.73,
         sisa_ha: 4.95,
         keterangan: 'Pematokan barisan tanam kontur',
-        lat_gps: -1.104212,
-        lng_gps: 102.153401,
+        lat_gps: -0.758250,
+        lng_gps: 117.024010,
         foto_url: 'https://images.unsplash.com/photo-1592417817098-8f3d69102553?auto=format&fit=crop&w=600&q=80'
     },
     {
@@ -128,8 +128,8 @@ let DEFAULT_REPORTS = [
         todate: 0.94,
         sisa_ha: 5.74,
         keterangan: 'Ukuran lubang 60x60x40 cm sesuai SOP',
-        lat_gps: -1.104501,
-        lng_gps: 102.153920,
+        lat_gps: -0.758450,
+        lng_gps: 117.024350,
         foto_url: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=600&q=80'
     },
     {
@@ -145,8 +145,8 @@ let DEFAULT_REPORTS = [
         todate: 0.89,
         sisa_ha: 5.79,
         keterangan: 'Menggunakan angkong & keranjang',
-        lat_gps: -1.104720,
-        lng_gps: 102.154210,
+        lat_gps: -0.758600,
+        lng_gps: 117.024600,
         foto_url: ''
     },
     {
@@ -162,8 +162,8 @@ let DEFAULT_REPORTS = [
         todate: 0.89,
         sisa_ha: 5.79,
         keterangan: 'Aplikasi pupuk dasar RP 500 gr/lubang',
-        lat_gps: -1.104890,
-        lng_gps: 102.154400,
+        lat_gps: -0.758800,
+        lng_gps: 117.024850,
         foto_url: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=600&q=80'
     },
     {
@@ -179,8 +179,8 @@ let DEFAULT_REPORTS = [
         todate: 3.58,
         sisa_ha: 3.08,
         keterangan: 'Penanaman tahap akhir batch 1 Blok OPD C',
-        lat_gps: -1.108200,
-        lng_gps: 102.158200,
+        lat_gps: -0.758150,
+        lng_gps: 117.027150,
         foto_url: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=600&q=80'
     }
 ];
@@ -287,13 +287,8 @@ function loadAppThemeAndBranding() {
         if (inp) inp.value = savedAppName;
     }
 
-    // 3. Logo Aplikasi
-    const savedLogo = localStorage.getItem('sawit_app_logo');
-    if (savedLogo) {
-        document.querySelectorAll('.brand-badge').forEach(el => {
-            el.innerHTML = `<img src="${savedLogo}" style="width: 24px; height: 24px; object-fit: contain;">`;
-        });
-    }
+    // 3. Terapkan Identitas Perusahaan, Nama Estate, dan Logo ke seluruh DOM
+    applyCompanySettingsToDOM();
 }
 
 function applyThemeColor(hexColor, showNotification = true) {
@@ -331,15 +326,23 @@ function saveAppBrandingFromUI() {
     if (fileInput && fileInput.files && fileInput.files[0]) {
         const reader = new FileReader();
         reader.onload = (e) => {
-            localStorage.setItem('sawit_app_logo', e.target.result);
-            document.querySelectorAll('.brand-badge').forEach(el => {
-                el.innerHTML = `<img src="${e.target.result}" style="width: 24px; height: 24px; object-fit: contain;">`;
-            });
+            const logoData = e.target.result;
+            localStorage.setItem('sawit_app_logo', logoData);
+
+            const comp = getCompanySettings();
+            comp.logo_url = logoData;
+            localStorage.setItem('sawit_company_settings', JSON.stringify(comp));
+
+            applyCompanySettingsToDOM(comp);
+            if (typeof showToast === 'function') {
+                showToast('Logo berhasil diperbarui dan otomatis terpasang pada KOP surat PDF & aplikasi!', 'success');
+            }
         };
         reader.readAsDataURL(fileInput.files[0]);
+    } else {
+        applyCompanySettingsToDOM();
+        showToast('Identitas dan branding aplikasi berhasil diperbarui!', 'success');
     }
-
-    showToast('Identitas dan logo aplikasi berhasil diperbarui!', 'success');
 }
 
 /**
@@ -800,7 +803,7 @@ function saveBlok(e) {
         appData.blocks.push({
             id_blok: idBlok,
             afdeling,
-            estate: 'Estate Sei Miak',
+            estate: 'Estate Sei Semujur',
             luas_ha: luas,
             pola_tanam: pola,
             jarak_tanam: jarak,
@@ -1324,19 +1327,71 @@ function viewPhotoModal(url) {
 }
 window.openPhotoViewerModal = viewPhotoModal;
 
-function loadCompanySettingsToForm() {
-    const comp = getCompanySettings();
-    const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+function applyCompanySettingsToDOM(settings = null) {
+    if (!settings) settings = getCompanySettings();
+    const logo = localStorage.getItem('sawit_app_logo') || settings.logo_url;
 
-    setVal('setCompanyName', comp.company_name);
-    setVal('setCompanyAbbr', comp.company_abbr);
-    setVal('setEstateName', comp.estate_name);
-    setVal('setStandardSph', comp.standard_sph);
-    setVal('setCompanyAddress', comp.address);
-    setVal('setCompanyContact', comp.contact);
-    setVal('setSignMandor', comp.sign_mandor);
-    setVal('setSignAsisten', comp.sign_asisten);
-    setVal('setSignManager', comp.sign_manager);
+    // 1. Title bar dokumen
+    if (settings.company_name) {
+        document.title = `Web-GIS Pelaporan Penanaman Sawit | ${settings.company_name}`;
+    }
+
+    // 2. Header Breadcrumb & Sub-brand Estate
+    const breadcrumbs = document.querySelectorAll('.app-breadcrumb');
+    breadcrumbs.forEach(el => {
+        el.innerHTML = `${settings.company_name || 'PT. ENERGI MAJU JAYA'} &bull; ${settings.estate_name || 'Estate Sei Semujur'} &bull; Proyeksi UTM Zone 50S`;
+    });
+
+    const brandSubs = document.querySelectorAll('.brand-sub');
+    brandSubs.forEach(el => {
+        el.textContent = (settings.estate_name || 'ESTATE SEI SEMUJUR').toUpperCase();
+    });
+
+    // 3. Login Brand Name & Subtitles & Footer
+    const loginBrands = document.querySelectorAll('.login-brand-name');
+    loginBrands.forEach(el => {
+        el.textContent = settings.company_name || 'PT. ENERGI MAJU JAYA';
+    });
+
+    const loginFooters = document.querySelectorAll('.login-visual-footer span');
+    loginFooters.forEach(el => {
+        el.innerHTML = `&copy; ${new Date().getFullYear()} ${settings.company_abbr || 'PT. EMJ'} &bull; ${settings.estate_name || 'Estate Sei Semujur'}`;
+    });
+
+    // 4. Logo Aplikasi di Sidebar Brand & Layar Login
+    if (logo) {
+        document.querySelectorAll('.brand-badge, .login-brand-badge').forEach(el => {
+            el.innerHTML = `<img src="${logo}" alt="Logo" style="width: 26px; height: 26px; object-fit: contain;">`;
+        });
+    }
+
+    // 5. Form Subtitle & Rekapitulasi Subtitle
+    const formSubtitle = document.querySelector('#page-form .subtitle');
+    if (formSubtitle) {
+        formSubtitle.textContent = `Format baku operasional perkebunan kelapa sawit ${settings.company_name || 'PT. ENERGI MAJU JAYA'}`;
+    }
+
+    const rekapHeading = document.querySelector('#page-rekap .page-heading');
+    if (rekapHeading) {
+        rekapHeading.textContent = `Rekapitulasi Laporan Harian (Standar ${settings.company_abbr || 'PT. EMJ'})`;
+    }
+
+    // 6. Sinkronkan nilai formulir pengaturan jika sedang terbuka
+    const setVal = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined) el.value = val; };
+    setVal('setCompanyName', settings.company_name);
+    setVal('setCompanyAbbr', settings.company_abbr);
+    setVal('setEstateName', settings.estate_name);
+    setVal('setStandardSph', settings.standard_sph);
+    setVal('setCompanyAddress', settings.address);
+    setVal('setCompanyContact', settings.contact);
+    setVal('setSignMandor', settings.sign_mandor);
+    setVal('setSignAsisten', settings.sign_asisten);
+    setVal('setSignManager', settings.sign_manager);
+}
+window.applyCompanySettingsToDOM = applyCompanySettingsToDOM;
+
+function loadCompanySettingsToForm() {
+    applyCompanySettingsToDOM();
 }
 
 function saveCompanySettingsFromUI() {
@@ -1345,20 +1400,23 @@ function saveCompanySettingsFromUI() {
         return;
     }
 
+    const savedLogo = localStorage.getItem('sawit_app_logo') || '';
     const settings = {
-        company_name: document.getElementById('setCompanyName')?.value || 'PT. MULA PERSADA RAYA',
-        company_abbr: document.getElementById('setCompanyAbbr')?.value || 'PT. MPR',
-        estate_name: document.getElementById('setEstateName')?.value || 'Estate Sei Miak',
-        standard_sph: document.getElementById('setStandardSph')?.value || '138',
-        address: document.getElementById('setCompanyAddress')?.value || '',
-        contact: document.getElementById('setCompanyContact')?.value || '',
-        sign_mandor: document.getElementById('setSignMandor')?.value || 'Joko Susanto',
-        sign_asisten: document.getElementById('setSignAsisten')?.value || 'Ir. Bambang Wijaya',
-        sign_manager: document.getElementById('setSignManager')?.value || 'Drs. Hendrawan, M.Si.'
+        company_name: document.getElementById('setCompanyName')?.value.trim() || 'PT. ENERGI MAJU JAYA',
+        company_abbr: document.getElementById('setCompanyAbbr')?.value.trim() || 'PT. EMJ',
+        estate_name: document.getElementById('setEstateName')?.value.trim() || 'Estate Sei Semujur',
+        standard_sph: document.getElementById('setStandardSph')?.value.trim() || '138',
+        address: document.getElementById('setCompanyAddress')?.value.trim() || '',
+        contact: document.getElementById('setCompanyContact')?.value.trim() || '',
+        sign_mandor: document.getElementById('setSignMandor')?.value.trim() || 'Joko Susanto',
+        sign_asisten: document.getElementById('setSignAsisten')?.value.trim() || 'Ir. Bambang Wijaya',
+        sign_manager: document.getElementById('setSignManager')?.value.trim() || 'Drs. Hendrawan, M.Si.',
+        logo_url: savedLogo
     };
 
     localStorage.setItem('sawit_company_settings', JSON.stringify(settings));
-    showToast('Pengaturan identitas perusahaan PT. MPR berhasil disimpan!', 'success');
+    applyCompanySettingsToDOM(settings);
+    showToast(`Identitas ${settings.company_name} (${settings.estate_name}) berhasil disimpan dan diterapkan ke seluruh sistem!`, 'success');
 }
 
 function formatDateShort(dateStr) {

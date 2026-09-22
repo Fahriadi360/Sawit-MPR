@@ -198,9 +198,9 @@ function getCurrentPosition() {
             }
         },
         (err) => {
-            // Gunakan koordinat default perkebunan PT. EMJ jika offline
-            const defaultLat = '-1.107234';
-            const defaultLng = '102.156128';
+            // Gunakan koordinat default perkebunan PT. EMJ (WGS84 Zone 50S) jika offline
+            const defaultLat = '-0.758250';
+            const defaultLng = '117.024010';
             if (gpsLat) {
                 gpsLat.textContent = `Lat: ${defaultLat} (Lokasi Kebun)`;
                 gpsLat.dataset.value = defaultLat;
@@ -353,8 +353,8 @@ async function submitReportPTEMJ() {
             todate: parseFloat(document.getElementById('todateJumlah').value) || 0,
             sisa_ha: document.getElementById('sisaHa').value,
             keterangan: document.getElementById('catatanKegiatan').value || '',
-            lat_gps: gpsLat ? (gpsLat.dataset.value || -1.107) : -1.107,
-            lng_gps: gpsLng ? (gpsLng.dataset.value || 102.156) : 102.156,
+            lat_gps: gpsLat ? (gpsLat.dataset.value || -0.75825) : -0.75825,
+            lng_gps: gpsLng ? (gpsLng.dataset.value || 117.02401) : 117.02401,
             foto_url: currentUploadedPhotos[0] || (cameraArea ? (cameraArea.dataset.photo || '') : ''),
             foto_kegiatan: currentUploadedPhotos.length > 0 ? [...currentUploadedPhotos] : (cameraArea?.dataset.photo ? [cameraArea.dataset.photo] : [])
         };

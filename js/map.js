@@ -1,7 +1,7 @@
 /**
  * =========================================================================
  * MODUL PETA GIS INTERAKTIF & CITRA OFFLINE (ECW / RASTER / ORTHOPHOTO)
- * map.js - PT. MULA PERSADA RAYA
+ * map.js - PT. ENERGI MAJU JAYA
  * Dukungan Proyeksi WGS_1984_UTM_Zone_50S, Minimizable Controls, & Auto-fit
  * =========================================================================
  */
@@ -32,10 +32,10 @@ let walkTrackingTimer = null;
 let walkTrackingSeconds = 0;
 let tempPlottedPolygonGeoJSON = null;
 
-// Bounding box perkebunan PT. MPR (WGS84 Lat/Lng)
+// Bounding box perkebunan PT. EMJ (WGS84 Lat/Lng - UTM Zone 50S)
 let KEBUN_BOUNDS = [
-    [-1.115, 102.150], // Southwest [Lat, Lng]
-    [-1.100, 102.165]  // Northeast [Lat, Lng]
+    [-0.76300, 117.02000], // Southwest [Lat, Lng]
+    [-0.75500, 117.03100]  // Northeast [Lat, Lng]
 ];
 
 /**
@@ -51,8 +51,8 @@ function initMap() {
     if (!container) return;
 
     map = L.map('mapContainer', {
-        center: [-1.107, 102.156],
-        zoom: 15,
+        center: [-0.75918, 117.02560],
+        zoom: 16,
         zoomControl: false
     });
 
@@ -209,14 +209,14 @@ function setupMapCoordinateReadout() {
 function initOfflineCitraLayer() {
     const offlineImgUrl = 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1400&q=80';
     const citraBounds = [
-        [-1.114, 102.151],
-        [-1.101, 102.161]
+        [-0.76300, 117.02000],
+        [-0.75500, 117.03100]
     ];
 
     offlineCitraLayer = L.imageOverlay(offlineImgUrl, citraBounds, {
         opacity: 0.85,
         interactive: false,
-        attribution: 'Citra Offline Orthophoto PT. MPR'
+        attribution: 'Citra Offline Orthophoto PT. EMJ'
     });
 }
 
@@ -283,14 +283,14 @@ function createUploadOrthophotoModal() {
                         <i class="fas fa-earth-asia text-emerald mr-1"></i> Sistem Proyeksi Citra (Projection):
                     </label>
                     <select id="selectCitraProjection" class="form-control-clean">
-                        <option value="EPSG:32750" selected>WGS_1984_UTM_Zone_50S (EPSG: 32750 - Standar PT. MPR / Kaltim / Kalsel)</option>
+                        <option value="EPSG:32750" selected>WGS_1984_UTM_Zone_50S (EPSG: 32750 - Standar PT. EMJ / Kaltim / Kalsel)</option>
                         <option value="EPSG:32749">WGS_1984_UTM_Zone_49S (EPSG: 32749 - Kalteng / Kalbar)</option>
                         <option value="EPSG:32748">WGS_1984_UTM_Zone_48S (EPSG: 32748 - Sumsel / Lampung / Jambi)</option>
                         <option value="EPSG:32648">WGS_1984_UTM_Zone_48N (EPSG: 32648 - Riau / Sumbar)</option>
                         <option value="EPSG:4326">WGS_1984_Geographic (EPSG: 4326 - Derajat Desimal)</option>
                     </select>
                     <div class="mt-2 text-xs text-muted" style="line-height: 1.5;">
-                        <i class="fas fa-circle-check text-emerald mr-1"></i> <b>Penataan Otomatis:</b> Koordinat batas cakupan dihitung dan diselaraskan secara otomatis dengan zona proyeksi UTM perkebunan PT. MPR tanpa perlu input manual.
+                        <i class="fas fa-circle-check text-emerald mr-1"></i> <b>Penataan Otomatis:</b> Koordinat batas cakupan dihitung dan diselaraskan secara otomatis dengan zona proyeksi UTM perkebunan PT. EMJ tanpa perlu input manual.
                     </div>
                 </div>
             </div>
@@ -334,10 +334,10 @@ function applyUserOrthophoto() {
 
     const selectedProj = document.getElementById('selectCitraProjection')?.value || 'EPSG:32750';
 
-    // Bounding box default perkebunan PT. MPR
+    // Bounding box default perkebunan PT. EMJ (WGS84 Zone 50S)
     const bounds = [
-        [-1.115, 102.150],
-        [-1.100, 102.165]
+        [-0.76300, 117.02000],
+        [-0.75500, 117.03100]
     ];
 
     if (userOrthophotoLayer && map) {
@@ -715,8 +715,8 @@ function toggleLiveGpsTracking() {
         (err) => {
             console.warn('GPS Live Error:', err);
             // Fallback estimasi lokasi kebun jika offline tanpa sinyal di desktop
-            const lat = -1.107234;
-            const lng = 102.156128;
+            const lat = -0.75825;
+            const lng = 117.02401;
             updateLiveGpsMarker(lat, lng, 15);
             if (typeof showToast === 'function') showToast('Menggunakan estimasi GPS kebun (Offline).', 'warning');
         },
@@ -883,7 +883,7 @@ function cancelWalkAroundTracking() {
 function finishWalkAroundTracking() {
     if (walkTrackingPoints.length < 3) {
         // Simulasi titik jika menguji di desktop tanpa GPS bergerak
-        const center = map ? map.getCenter() : { lat: -1.107, lng: 102.156 };
+        const center = map ? map.getCenter() : { lat: -0.75918, lng: 117.02560 };
         const d = 0.0015;
         walkTrackingPoints = [
             { lat: center.lat - d, lng: center.lng - d },
@@ -1112,8 +1112,8 @@ function initFormMiniMap() {
     if (!container) return;
 
     formMiniMap = L.map('miniMapContainer', {
-        center: [-1.107, 102.156],
-        zoom: 14,
+        center: [-0.75918, 117.02560],
+        zoom: 16,
         zoomControl: false
     });
 
