@@ -1,7 +1,7 @@
 /**
  * =========================================================================
  * MODUL AUTENTIKASI & MANAJEMEN PENGGUNA (auth.js)
- * PT. ENERGI MAJU JAYA - Web-GIS Penanaman Sawit
+ * PT. MULA PERSADA RAYA - Web-GIS Penanaman Sawit
  * Desain Login Sesuai Referensi media_1790061422890.png
  * =========================================================================
  */
