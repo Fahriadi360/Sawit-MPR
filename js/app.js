@@ -6,7 +6,7 @@
  */
 
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbwGUnqC7U_57T2UgHytpsXbXZWJTRd9jRwZFeVSAD8iviE89Uz_puty-zPsEcOrDFo/exec';
-const IS_DEMO = GAS_URL === 'https://script.google.com/macros/s/AKfycbwGUnqC7U_57T2UgHytpsXbXZWJTRd9jRwZFeVSAD8iviE89Uz_puty-zPsEcOrDFo/exec';
+const IS_DEMO = false;
 
 // DATA MASTER BLOK PT. EMJ (DISIMPAN DI MEMORY / LOCALSTORAGE)
 let DEFAULT_BLOCKS = [
@@ -223,6 +223,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderMasterBlokTable();
 
     if (typeof initForm === 'function') initForm();
+
+    // 6. Sinkronisasi Data Live dengan Google Sheets via GAS
+    if (typeof syncAllDataWithGAS === 'function') {
+        syncAllDataWithGAS(false);
+    }
 });
 
 function loadPersistedData() {

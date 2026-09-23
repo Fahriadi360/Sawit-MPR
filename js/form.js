@@ -385,32 +385,48 @@ async function submitReportPTEMJ() {
             return;
         }
 
-        // Mode Live GAS
+        // Mode Live GAS (Google Apps Script)
         try {
             const response = await fetch(GAS_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newRecord)
+                redirect: 'follow',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'submitReport', ...newRecord })
             });
             const result = await response.json();
 
             if (result.status === 'success') {
                 if (typeof appData !== 'undefined' && appData.reports) {
-                    newRecord.id_laporan = result.id_laporan;
+                    newRecord.id_laporan = result.id_laporan || ('LPR-' + Date.now());
                     newRecord.foto_url = result.foto_url || newRecord.foto_url;
                     appData.reports.unshift(newRecord);
+                    localStorage.setItem('sawit_trx_reports', JSON.stringify(appData.reports));
                     if (typeof renderDashboard === 'function') renderDashboard(appData.blocks, appData.reports);
+                    if (typeof renderRekapTable === 'function') renderRekapTable(appData.reports);
+                    if (typeof addGPSMarkers === 'function') addGPSMarkers(appData.reports);
                 }
                 resetFormPTEMJ();
                 const modal = document.getElementById('successModal');
                 if (modal) modal.classList.add('show');
-                if (typeof showToast === 'function') showToast('Laporan berhasil dikirim ke Google Sheets!', 'success');
+                if (typeof showToast === 'function') showToast('Laporan berhasil dikirim ke Google Sheets PT. EMJ!', 'success');
             } else {
-                if (typeof showToast === 'function') showToast('Gagal: ' + result.message, 'error');
+                if (typeof showToast === 'function') showToast('Gagal: ' + (result.message || 'Error server'), 'error');
             }
         } catch (err) {
             console.error('Submit error:', err);
-            if (typeof showToast === 'function') showToast('Gagal mengirim ke server GAS. Cek koneksi.', 'error');
+            // Fallback simpan lokal jika perangkat sedang offline di kebun
+            if (typeof appData !== 'undefined' && appData.reports) {
+                newRecord.id_laporan = 'OFFLINE-' + Date.now();
+                appData.reports.unshift(newRecord);
+                localStorage.setItem('sawit_trx_reports', JSON.stringify(appData.reports));
+                if (typeof renderDashboard === 'function') renderDashboard(appData.blocks, appData.reports);
+                if (typeof renderRekapTable === 'function') renderRekapTable(appData.reports);
+                if (typeof addGPSMarkers === 'function') addGPSMarkers(appData.reports);
+            }
+            resetFormPTEMJ();
+            const modal = document.getElementById('successModal');
+            if (modal) modal.classList.add('show');
+            if (typeof showToast === 'function') showToast('Offline: Laporan disimpan di database lokal browser.', 'warning');
         } finally {
             if (btn) {
                 btn.disabled = false;
