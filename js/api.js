@@ -23,7 +23,8 @@ async function callGasServer(action, payload = {}, method = 'POST') {
         };
 
         if (method === 'GET') {
-            const params = new URLSearchParams({ action, ...payload });
+            // Tambahkan timestamp anti-cache agar browser HP/Desktop selalu memuat data terbaru dari Google Sheets
+            const params = new URLSearchParams({ action, ...payload, _t: Date.now() });
             url += `?${params.toString()}`;
         } else {
             // Gunakan 'text/plain;charset=utf-8' agar browser tidak mengirim request preflight OPTIONS
@@ -39,7 +40,14 @@ async function callGasServer(action, payload = {}, method = 'POST') {
             throw new Error(`Server GAS merespon dengan status HTTP ${response.status}`);
         }
 
-        const result = await response.json();
+        const rawText = await response.text();
+        let result;
+        try {
+            result = JSON.parse(rawText);
+        } catch (jsonErr) {
+            console.error('[GAS Response Not JSON]:', rawText);
+            throw new Error('Respon server bukan format JSON. Pastikan izin deployment Google Apps Script: "Who has access" disetel ke "Anyone" (Siapa saja).');
+        }
         return result;
 
     } catch (err) {

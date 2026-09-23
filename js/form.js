@@ -388,13 +388,9 @@ async function submitReportPTEMJ() {
 
         // Mode Live GAS (Google Apps Script)
         try {
-            const response = await fetch(GAS_URL, {
-                method: 'POST',
-                redirect: 'follow',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ action: 'submitReport', ...newRecord })
-            });
-            const result = await response.json();
+            const result = typeof submitReportToGAS === 'function'
+                ? await submitReportToGAS(newRecord)
+                : await callGasServer('submitReport', newRecord, 'POST');
 
             if (result.status === 'success') {
                 if (typeof appData !== 'undefined' && appData.reports) {
