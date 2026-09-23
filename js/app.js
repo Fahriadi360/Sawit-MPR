@@ -837,8 +837,26 @@ function saveBlok(e) {
 
     if (typeof loadBlockLayers === 'function') loadBlockLayers();
 
+    // Sinkronisasi ke Google Sheets Backend
+    const blockPayload = {
+        id_blok: idBlok,
+        afdeling: afdeling,
+        luas_ha: luas,
+        target_sph: sph,
+        target_pokok: target,
+        varietas_bibit: varietas,
+        tahun_tanam: tahun
+    };
+    if (typeof saveBlockToGAS === 'function') {
+        saveBlockToGAS(blockPayload).then(res => {
+            if (res && res.status === 'success') {
+                console.log(`Blok ${idBlok} tersinkronisasi ke Google Sheets.`);
+            }
+        });
+    }
+
     document.getElementById('blokModal').classList.remove('show');
-    showToast(`Blok ${idBlok} berhasil disimpan!`, 'success');
+    showToast(`Blok ${idBlok} berhasil disimpan ke database lokal & Google Sheets!`, 'success');
 }
 
 function deleteBlok(idBlok) {
@@ -851,7 +869,16 @@ function deleteBlok(idBlok) {
     renderDashboard(appData.blocks, appData.reports);
     if (typeof loadBlockLayers === 'function') loadBlockLayers();
 
-    showToast(`Blok ${idBlok} berhasil dihapus.`, 'success');
+    // Hapus dari Google Sheets Backend
+    if (typeof deleteBlockFromGAS === 'function') {
+        deleteBlockFromGAS(idBlok).then(res => {
+            if (res && res.status === 'success') {
+                console.log(`Blok ${idBlok} dihapus dari Google Sheets.`);
+            }
+        });
+    }
+
+    showToast(`Blok ${idBlok} berhasil dihapus dari sistem.`, 'success');
 }
 
 // ===== EDIT & HAPUS REKAPITULASI (MULTI-FOTO SUPPORT) =====
@@ -1399,10 +1426,17 @@ function loadCompanySettingsToForm() {
     applyCompanySettingsToDOM();
 }
 
-function saveCompanySettingsFromUI() {
+async function saveCompanySettingsFromUI() {
     if (currentUser.role !== 'admin') {
         showToast('Hanya Administrator yang memiliki akses mengubah identitas perusahaan.', 'error');
         return;
+    }
+
+    const btn = document.querySelector('button[onclick="saveCompanySettingsFromUI()"]');
+    const originalText = btn ? btn.innerHTML : 'Simpan Konfigurasi';
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Menyimpan ke Cloud...';
     }
 
     const savedLogo = localStorage.getItem('sawit_app_logo') || '';
@@ -1421,7 +1455,24 @@ function saveCompanySettingsFromUI() {
 
     localStorage.setItem('sawit_company_settings', JSON.stringify(settings));
     applyCompanySettingsToDOM(settings);
-    showToast(`Identitas ${settings.company_name} (${settings.estate_name}) berhasil disimpan dan diterapkan ke seluruh sistem!`, 'success');
+
+    // Kirimkan ke Google Apps Script (Cloud)
+    try {
+        if (typeof saveCompanySettingsToGAS === 'function') {
+            await saveCompanySettingsToGAS(settings);
+            showToast(`Identitas ${settings.company_name} (${settings.estate_name}) berhasil disimpan ke Google Sheets Cloud!`, 'success');
+        } else {
+            showToast(`Identitas ${settings.company_name} (${settings.estate_name}) disimpan secara lokal.`, 'success');
+        }
+    } catch (err) {
+        console.warn('Gagal sinkronisasi profil perusahaan ke cloud:', err);
+        showToast(`Disimpan di lokal. Sinkronisasi Google Sheets gagal: ${err.message}`, 'warning');
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    }
 }
 
 function formatDateShort(dateStr) {

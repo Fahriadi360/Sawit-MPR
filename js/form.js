@@ -356,6 +356,7 @@ async function submitReportPTEMJ() {
             lat_gps: gpsLat ? (gpsLat.dataset.value || -0.75825) : -0.75825,
             lng_gps: gpsLng ? (gpsLng.dataset.value || 117.02401) : 117.02401,
             foto_url: currentUploadedPhotos[0] || (cameraArea ? (cameraArea.dataset.photo || '') : ''),
+            foto_base64: currentUploadedPhotos[0] || (cameraArea ? (cameraArea.dataset.photo || '') : ''),
             foto_kegiatan: currentUploadedPhotos.length > 0 ? [...currentUploadedPhotos] : (cameraArea?.dataset.photo ? [cameraArea.dataset.photo] : [])
         };
 

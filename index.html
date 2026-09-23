@@ -182,6 +182,12 @@
                 </div>
                 
                 <div class="header-right">
+                    <!-- Status Koneksi Google Sheets Cloud Real-Time -->
+                    <div class="cloud-status-badge badge-cloud-syncing" id="cloudStatusBadge" onclick="syncAllDataWithGAS(true)" title="Status Koneksi Google Sheets. Klik untuk sinkronisasi manual sekarang.">
+                        <i class="fas fa-spinner fa-spin text-cyan mr-1"></i>
+                        <span id="cloudStatusText">Menyambungkan...</span>
+                    </div>
+
                     <button type="button" class="btn btn-xs btn-outline-clean" onclick="openSignatureModal('manager')" title="Buka Panel Tanda Tangan Digital">
                         <i class="fas fa-signature text-emerald mr-1"></i> TTD Online
                     </button>

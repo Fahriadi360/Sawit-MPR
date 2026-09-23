@@ -6,8 +6,7 @@
  * =========================================================================
  */
 
-// URL Backend Google Apps Script Web App (API Endpoint)
-const BACKEND_API_URL = 'https://script.google.com/macros/s/AKfycbwGUnqC7U_57T2UgHytpsXbXZWJTRd9jRwZFeVSAD8iviE89Uz_puty-zPsEcOrDFo/exec';
+const GAS_ENDPOINT_URL = 'https://script.google.com/macros/s/AKfycbwGUnqC7U_57T2UgHytpsXbXZWJTRd9jRwZFeVSAD8iviE89Uz_puty-zPsEcOrDFo/exec';
 
 /**
  * Universal Fetch Helper untuk Google Apps Script Web App
@@ -114,37 +113,128 @@ async function submitReportToGAS(reportData) {
 }
 
 /**
- * 4. Menyimpan Identitas Perusahaan ke Spreadsheet (POST)
- * Endpoint: doPost -> action=saveCompanySettings
+ * 4. Mengambil Identitas Perusahaan dari Spreadsheet (GET)
+ * Endpoint: doGet -> action=getCompanySettings
  */
-async function saveCompanySettingsToGAS(settings) {
-    return await callGasServer('saveCompanySettings', settings, 'POST');
+async function fetchCompanySettingsFromGAS() {
+    try {
+        const res = await callGasServer('getCompanySettings', {}, 'GET');
+        if (res && res.status === 'success' && res.data) {
+            console.log('Profil perusahaan berhasil dimuat dari Google Sheets:', res.data);
+            return res.data;
+        }
+        return null;
+    } catch (e) {
+        console.warn('Gagal memuat profil perusahaan dari server GAS:', e);
+        return null;
+    }
 }
 
 /**
- * 5. Sinkronisasi Seluruh Data dari Server ke Frontend
+ * 5. Menyimpan Identitas Perusahaan ke Spreadsheet (POST)
+ * Endpoint: doPost -> action=saveCompanySettings
+ */
+async function saveCompanySettingsToGAS(settings) {
+    try {
+        const res = await callGasServer('saveCompanySettings', { settings: settings }, 'POST');
+        return res;
+    } catch (e) {
+        console.error('Gagal menyimpan identitas perusahaan ke GAS:', e);
+        throw e;
+    }
+}
+
+/**
+ * 6. Menyimpan / Memperbarui Master Blok ke Spreadsheet (POST)
+ * Endpoint: doPost -> action=saveBlock
+ */
+async function saveBlockToGAS(blockData) {
+    try {
+        const res = await callGasServer('saveBlock', { block: blockData }, 'POST');
+        return res;
+    } catch (e) {
+        console.warn('Gagal menyimpan blok ke server GAS:', e);
+        return null;
+    }
+}
+
+/**
+ * 7. Menghapus Master Blok dari Spreadsheet (POST)
+ * Endpoint: doPost -> action=deleteBlock
+ */
+async function deleteBlockFromGAS(idBlok) {
+    try {
+        const res = await callGasServer('deleteBlock', { id_blok: idBlok }, 'POST');
+        return res;
+    } catch (e) {
+        console.warn('Gagal menghapus blok dari server GAS:', e);
+        return null;
+    }
+}
+
+/**
+ * Helper: Pembaruan Status Koneksi Cloud pada Header
+ */
+function updateCloudStatusIndicator(status, text) {
+    const badge = document.getElementById('cloudStatusBadge');
+    if (!badge) return;
+    
+    badge.className = `cloud-status-badge badge-cloud-${status}`;
+    if (status === 'syncing') {
+        badge.innerHTML = `<i class="fas fa-spinner fa-spin text-cyan mr-1"></i> <span id="cloudStatusText">${text || 'Menyinkronkan...'}</span>`;
+    } else if (status === 'online') {
+        badge.innerHTML = `<i class="fas fa-cloud-arrow-up text-emerald mr-1"></i> <span id="cloudStatusText">${text || 'Cloud Terhubung (Live)'}</span>`;
+    } else {
+        badge.innerHTML = `<i class="fas fa-cloud-slash text-amber mr-1"></i> <span id="cloudStatusText">${text || 'Mode Offline'}</span>`;
+    }
+}
+
+/**
+ * 8. Sinkronisasi Seluruh Data dari Server ke Frontend
+ * Mengambil Profil Perusahaan, Master Blok, dan Transaksi Laporan sekaligus.
  */
 async function syncAllDataWithGAS(showToastNotification = true) {
+    updateCloudStatusIndicator('syncing', 'Menyinkronkan Google Sheets...');
     if (showToastNotification && typeof showToast === 'function') {
         showToast('Menyinkronkan data dengan Google Sheets PT. EMJ...', 'info');
     }
 
     try {
-        const [blocks, reports] = await Promise.all([
+        const [blocks, reports, companySettings] = await Promise.all([
             fetchBlocksSummaryFromGAS(),
-            fetchReportsFromGAS()
+            fetchReportsFromGAS(),
+            fetchCompanySettingsFromGAS()
         ]);
 
-        if (blocks && blocks.length > 0 && typeof appData !== 'undefined') {
+        let hasLiveConnection = false;
+
+        // A. Terapkan Identitas Perusahaan Live jika ada dari Google Sheets
+        if (companySettings && typeof companySettings === 'object' && Object.keys(companySettings).length > 0) {
+            localStorage.setItem('sawit_company_settings', JSON.stringify(companySettings));
+            if (typeof applyCompanySettingsToDOM === 'function') {
+                applyCompanySettingsToDOM(companySettings);
+            }
+            hasLiveConnection = true;
+        }
+
+        // B. Terapkan Master Blok Live
+        if (blocks && Array.isArray(blocks) && blocks.length > 0 && typeof appData !== 'undefined') {
             appData.blocks = blocks;
             localStorage.setItem('sawit_master_blocks', JSON.stringify(blocks));
+            if (typeof syncBlokMetadata === 'function') syncBlokMetadata();
+            hasLiveConnection = true;
         }
 
-        if (reports && reports.length > 0 && typeof appData !== 'undefined') {
+        // C. Terapkan Transaksi Laporan Live
+        // Jika server berhasil merespon dengan array reports (walaupun kosong),
+        // gantikan data dummy dengan data riil dari Google Sheets!
+        if (Array.isArray(reports) && typeof appData !== 'undefined') {
             appData.reports = reports;
             localStorage.setItem('sawit_trx_reports', JSON.stringify(reports));
+            hasLiveConnection = true;
         }
 
+        // Re-render seluruh antarmuka sistem
         if (typeof renderDashboard === 'function' && typeof appData !== 'undefined') {
             renderDashboard(appData.blocks, appData.reports);
         }
@@ -157,15 +247,26 @@ async function syncAllDataWithGAS(showToastNotification = true) {
         if (typeof addGPSMarkers === 'function' && typeof appData !== 'undefined') {
             addGPSMarkers(appData.reports);
         }
-
-        if (showToastNotification && typeof showToast === 'function') {
-            showToast('Sinkronisasi data Google Sheets berhasil!', 'success');
+        if (typeof loadBlockLayers === 'function') {
+            loadBlockLayers();
         }
-        return true;
+
+        if (hasLiveConnection) {
+            updateCloudStatusIndicator('online', 'Cloud Terhubung (Live)');
+            if (showToastNotification && typeof showToast === 'function') {
+                showToast('Data Google Sheets PT. EMJ berhasil disinkronkan!', 'success');
+            }
+            return true;
+        } else {
+            updateCloudStatusIndicator('offline', 'Mode Offline (Lokal)');
+            return false;
+        }
+
     } catch (e) {
-        console.error('Sinkronisasi gagal:', e);
+        console.error('Sinkronisasi Google Sheets gagal:', e);
+        updateCloudStatusIndicator('offline', 'Mode Offline (Lokal)');
         if (showToastNotification && typeof showToast === 'function') {
-            showToast('Gagal menyinkronkan data dengan server.', 'error');
+            showToast('Gagal terhubung ke Google Sheets. Menggunakan data lokal.', 'warning');
         }
         return false;
     }
@@ -176,6 +277,10 @@ window.GAS_ENDPOINT_URL = GAS_ENDPOINT_URL;
 window.callGasServer = callGasServer;
 window.fetchBlocksSummaryFromGAS = fetchBlocksSummaryFromGAS;
 window.fetchReportsFromGAS = fetchReportsFromGAS;
+window.fetchCompanySettingsFromGAS = fetchCompanySettingsFromGAS;
 window.submitReportToGAS = submitReportToGAS;
 window.saveCompanySettingsToGAS = saveCompanySettingsToGAS;
+window.saveBlockToGAS = saveBlockToGAS;
+window.deleteBlockFromGAS = deleteBlockFromGAS;
+window.updateCloudStatusIndicator = updateCloudStatusIndicator;
 window.syncAllDataWithGAS = syncAllDataWithGAS;

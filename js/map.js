@@ -1028,6 +1028,18 @@ function handleSavePlottedAreaSubmit(e) {
             if (typeof syncBlokMetadata === 'function') syncBlokMetadata();
             if (typeof renderMasterBlokTable === 'function') renderMasterBlokTable();
             if (typeof renderDashboard === 'function') renderDashboard(appData.blocks, appData.reports);
+
+            if (typeof saveBlockToGAS === 'function') {
+                saveBlockToGAS({
+                    id_blok: name,
+                    afdeling: 'Afdeling 1',
+                    luas_ha: luas,
+                    target_sph: 138,
+                    target_pokok: Math.round(luas * 138),
+                    varietas_bibit: 'Dami Mas',
+                    tahun_tanam: new Date().getFullYear()
+                });
+            }
         }
     }
 

@@ -2322,3 +2322,59 @@ input:checked + .slider:before { transform: translateX(14px); }
         min-width: auto;
     }
 }
+
+/* =========================================================================
+   7. INDIKATOR STATUS CLOUD GOOGLE SHEETS
+   ========================================================================= */
+.cloud-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    user-select: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(15, 23, 42, 0.85);
+    color: #e2e8f0;
+}
+
+.cloud-status-badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.badge-cloud-online {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.4);
+    color: #34d399;
+}
+
+.badge-cloud-online:hover {
+    background: rgba(16, 185, 129, 0.25);
+}
+
+.badge-cloud-syncing {
+    background: rgba(6, 182, 212, 0.15);
+    border-color: rgba(6, 182, 212, 0.4);
+    color: #22d3ee;
+}
+
+.badge-cloud-offline {
+    background: rgba(245, 158, 11, 0.15);
+    border-color: rgba(245, 158, 11, 0.4);
+    color: #fbbf24;
+}
+
+@media (max-width: 640px) {
+    .cloud-status-badge span {
+        display: none; /* Hanya tampilkan icon di layar sangat kecil */
+    }
+    .cloud-status-badge {
+        padding: 5px 8px;
+    }
+}
+
