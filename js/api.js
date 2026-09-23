@@ -6,7 +6,8 @@
  * =========================================================================
  */
 
-const GAS_ENDPOINT_URL = 'https://script.google.com/macros/s/AKfycbwGUnqC7U_57T2UgHytpsXbXZWJTRd9jRwZFeVSAD8iviE89Uz_puty-zPsEcOrDFo/exec';
+// URL Backend Google Apps Script Web App (API Endpoint)
+const BACKEND_API_URL = 'https://script.google.com/macros/s/AKfycbwGUnqC7U_57T2UgHytpsXbXZWJTRd9jRwZFeVSAD8iviE89Uz_puty-zPsEcOrDFo/exec';
 
 /**
  * Universal Fetch Helper untuk Google Apps Script Web App
